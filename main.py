@@ -56,7 +56,7 @@ async def send_reminder():
                 channel = data["reminders"][i]["channel"][index_reminder]
                 reminder = data["reminders"][i]["tasks"][index_reminder]
 
-                # remove the reminder
+                # remove and send the reminder
                 data["reminders"][i]["tasks"].pop(index_reminder)
                 data["reminders"][i]["times"].pop(index_reminder)
 
@@ -105,6 +105,7 @@ async def on_message(message):
     if message.author == client.user:
         return None
 
+    # create personal reminders to ping the user
     if user_message.startswith("!remindme"):
         # check if the user already has reminders
         # gonna need to check if its in the json file instead - read the json file
@@ -124,7 +125,6 @@ async def on_message(message):
             with open('all_data.json', 'w') as outfile:
                 json.dump(data, outfile, default = str)
 
-            # await message.channel.send("Okay! I will remindchuu " + reminder + " at " + time + " :relieved:")
             await message.channel.send("What time would you like to set this reminder to? (yyyy/mm/dd at hh:mm AM/PM)")
 
         else:
@@ -156,7 +156,7 @@ async def on_message(message):
             await message.channel.send(get_time(user_message, server))
 
 
-    # reminders for everyone in the server called with @everyone
+    # create server reminders to be pinned with @everyone
     if user_message.startswith("!remindsvr"):
         reminder = user_message.split("!remindsvr", 1)[1]
         # gonna need to check if its in the json file instead - read the json file
@@ -196,12 +196,7 @@ async def on_message(message):
 
             await message.channel.send("What time would you like to set this sever reminder to? (yyyy/mm/dd at hh:mm AM/PM)")
 
-
-    # gotta fix this
-    # if user_message == "!help":
-    #     await message.channel.send("Here's a list of the current valid commands:\n\n`!help` - get a list of the current valid commands\n`!remindme <to do something> at <YYYY-MM-DD hh:mm>` - set a reminder for yourself at the inputted time \n`!remindeveryone <to do something> at <YYYY-MM-DD hh:mm>` - set a reminder for everyone at the inputted time")
-
-    
+    # remove personal reminders
     if user_message.startswith("!removemy"):
         if user_message.split("!removemy", 1)[1] != "":
             rm_num = user_message.split("!removemy ", 1)[1]
@@ -238,7 +233,7 @@ async def on_message(message):
         else:
             await message.channel.send("Please choose a valid number from the list of reminders. To see all reminders type '!myreminders'.")
 
-
+    # remove server reminders
     if user_message.startswith("!removesvr"):
         if user_message.split("!removesvr", 1)[1] != "":
             rm_num = user_message.split("!removesvr ", 1)[1]
@@ -276,7 +271,7 @@ async def on_message(message):
             await message.channel.send("Please choose a valid number from the list of server reminders. To see all reminders type '!svrreminders'.")
 
 
-
+    # clear all personal reminders
     if user_message == "!clearmy":
         infile = open('all_data.json')
         data = json.load(infile)
@@ -293,6 +288,7 @@ async def on_message(message):
         else:
             await message.channel.send("Are you sure you would like to clear all of your reminders? (y/n)")
     
+    # implementing a confirmation message
     if past_msgs["msgs"][index_user]["user_msg"][num_logs - 2] == "!clearmy":
         infile = open('all_data.json')
         data = json.load(infile)
@@ -311,6 +307,8 @@ async def on_message(message):
         else:
             await message.channel.send("Okay! Your reminders have not been cleared and I'll be sure to keep them safe!")
 
+     
+    # clear all server reminders
     if user_message == "!clearsvr":
         infile = open('all_data.json')
         data = json.load(infile)
@@ -327,6 +325,7 @@ async def on_message(message):
         else:
             await message.channel.send("Are you sure you would like to clear all of the server reminders? (y/n)")
     
+    # implementing a confirmation message
     if past_msgs["msgs"][index_user]["user_msg"][num_logs - 2] == "!clearsvr":
         infile = open('all_data.json')
         data = json.load(infile)
@@ -348,6 +347,7 @@ async def on_message(message):
     await client.process_commands(message)
 
 
+# displaying an embed of all personal reminders
 @client.command(pass_context = True, name = "myreminders", aliases = ["myrem"])
 async def myreminders(ctx):
     username = str(ctx.message.author).split("#")[0]
@@ -372,7 +372,7 @@ async def myreminders(ctx):
 
     await ctx.send(embed=embed)
 
-
+# displaying an embed of all server reminders
 @client.command(pass_context = True, name = "svrreminders", aliases = ["svreminders", "svrrem", "svrem"])
 async def svrreminders(ctx):
     server = str(ctx.message.guild.id)
@@ -397,7 +397,8 @@ async def svrreminders(ctx):
 
     await ctx.send(embed=embed)
 
-
+    
+# displaying an embed to display a list of commands
 @client.command(pass_context = True, name = "help")
 async def help(ctx):
     embed = discord.Embed(
@@ -486,4 +487,4 @@ def is_int(number):
 
 
 # run the bot
-client.run(TOKEN)
+client.run(TOKEN) # the token was stored in an .env file
