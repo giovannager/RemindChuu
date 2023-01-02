@@ -1,6 +1,6 @@
 # Name: Giovanna Gerada
 # Date: May 31, 2022
-# Purpose: creating a discord bot called RemindChuu to remind us to pay our rent at the end of each month
+# Purpose: creating a discord bot called RemindChuu to ping a user or @everyone in a server to remind them of anything at any future time
 
 # import libraries
 from operator import index
